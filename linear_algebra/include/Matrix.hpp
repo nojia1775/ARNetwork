@@ -87,6 +87,8 @@ class	Matrix
 		T				trace(void) const;
 		Matrix<T>			row_echelon(void) const;
 		size_t				rank(void) const;
+		Matrix<T>			sumCols(void) const;
+		Matrix<T>			sumLines(void) const;
 };
 
 template <typename T>

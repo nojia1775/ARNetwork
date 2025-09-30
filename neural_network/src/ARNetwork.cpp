@@ -5,19 +5,19 @@ ARNetwork::ARNetwork(const size_t& inputs, const size_t& hidden_layers, const si
 	for (size_t i = 0 ; i < hidden_layers + 1 ; i++)
 	{
 		if (i == 0)
-			_weights[i] = Matrix<double>(hidden_neurals, inputs);
+			_weights[i] = Matrix<double>(hidden_neurals ? hidden_neurals : 1, inputs);
 		else if (i == hidden_layers)
 			_weights[i] = Matrix<double>(outputs, hidden_neurals);
 		else
 			_weights[i] = Matrix<double>(hidden_neurals, hidden_neurals);
 		for (size_t j = 0 ; j < _weights[i].getNbrLines() ; j++)
+			_bias[i][j] = random_double(-1, 1);
+		for (size_t j = 0 ; j < _weights[i].getNbrLines() ; j++)
 		{
 			for (size_t k = 0 ; k < _weights[i].getNbrColumns() ; k++)
-				_weights[i][j][k] = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX) * 2 - 1;
+				_weights[i][j][k] = random_double(-1, 1);
 		}
 	}
-	for (auto& bias : _bias)
-		bias = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX) * 2 - 1;
 }
 
 ARNetwork::ARNetwork(const ARNetwork& arn) : _inputs(arn._inputs), _outputs(arn._outputs), _weights(arn._weights), _bias(arn._bias), _learning_rate(arn._learning_rate) {}
@@ -33,4 +33,51 @@ ARNetwork	ARNetwork::operator=(const ARNetwork& arn)
 		_learning_rate = arn._learning_rate;
 	}
 	return *this;
+}
+
+const double&	ARNetwork::get_bias(const size_t& i, const size_t& j) const
+{
+	if (i > _bias.size() - 1)
+		throw Error("Error: index out of range");
+	if (j < _bias[i].size() - 1)
+		throw Error("Error: index out of range");
+	return _bias[i][j];
+}
+
+void	ARNetwork::set_bias(const size_t& i, const size_t& j, const double& bias)
+{
+	if (i > _bias.size() - 1)
+		throw Error("Error: index out of range");
+	if (j < _bias[i].size() - 1)
+		throw Error("Error: index out of range");
+	_bias[i][j] = bias;
+}
+
+Vector<double>	ARNetwork::feed_forward(const Vector<double>& inputs, double (*layer_activation)(const double&), double (*output_activation)(const double&))
+{
+	set_inputs(inputs);
+	Matrix<double> neurals = _inputs;
+	for (size_t i = 0 ; i < nbr_hidden_layers() + 1 ; i++)
+	{
+		neurals.display();
+		_weights[i].display();
+		neurals = _weights[i] * neurals;
+		for (size_t k = 0 ; k < neurals.getNbrLines() ; k++)
+		{
+			if (i == nbr_hidden_layers())
+				neurals[k][0] = output_activation == NULL ? neurals[k][0] + _bias[i][k] : output_activation(neurals[k][0] + _bias[i][k]);
+			else
+				neurals[k][0] = layer_activation == NULL ? neurals[k][0] + _bias[i][k] : layer_activation(neurals[k][0] + _bias[i][k]);
+		}
+	}
+	_outputs = Vector<double>(neurals);
+	return _outputs;
+}
+
+double	ARNetwork::back_propagation(double (*loss)(const double&, const double&), double (*d_loss)(const double&, const double&), double (*d_layer_activation)(const double&), double (*d_output_activation)(const double&), const std::vector<double>& y)
+{
+	if (loss == NULL)
+		throw Error("Error: loss function is missing");
+	if (d_loss == NULL)
+		throw Error("Error: derived loss function is missing");
 }

@@ -492,3 +492,31 @@ std::vector<Vector<Complex>>	Matrix<T>::eigenVectors(void) const
 	}
 	return eigenVectors;
 }
+
+template <typename T>
+Matrix<T>	Matrix<T>::sumCols(void) const
+{
+	Matrix<T> result(_nbrLines, 1);
+	for (size_t i = 0 ; i < _nbrLines ; i++)
+	{
+		T nbr{};
+		for (size_t j = 0 ; j < _nbrColumns ; j++)
+			nbr += _matrix[i][j];
+		result[i][0] = nbr;
+	}
+	return result;
+}
+
+template <typename T>
+Matrix<T>	Matrix<T>::sumLines(void) const
+{
+	Matrix<T> result(1, _nbrColumns);
+	for (size_t i = 0 ; i < _nbrColumns ; i++)
+	{
+		T nbr{};
+		for (size_t j = 0 ; j < _nbrLines ; j++)
+			nbr += _matrix[j][i];
+		result[0][i] = nbr;
+	}
+	return result;
+}
