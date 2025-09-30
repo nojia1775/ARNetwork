@@ -520,3 +520,13 @@ Matrix<T>	Matrix<T>::sumLines(void) const
 	}
 	return result;
 }
+
+template <typename T>
+void	Matrix<T>::apply(T (*f)(const T&))
+{
+	if (f == NULL)
+		return;
+	for (size_t i = 0 ; i < _nbrLines ; i++)
+		for (auto& coef : _matrix[i])
+			coef = f(coef);
+}

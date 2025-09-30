@@ -11,7 +11,8 @@ class	ARNetwork
 		Vector<double>				_inputs;
 		Vector<double>				_outputs;
 		std::vector<Matrix<double>>		_weights;
-		std::vector<std::vector<double>>	_bias;
+		std::vector<Vector<double>>		_z;
+		std::vector<Vector<double>>		_bias;
 		double					_learning_rate;
 
 	public:
@@ -25,8 +26,8 @@ class	ARNetwork
 		const double&				get_input(const size_t& index) { if (index > _inputs.dimension() - 1) throw Error("Error: out of range"); else return _inputs[index]; }
 		const std::vector<Matrix<double>>&	get_weights(void) const { return _weights; }
 		const Matrix<double>&			get_weights(const size_t& layer) const { if (layer > _weights.size() - 1) throw Error("Error: index out of range"); else return _weights[layer]; }
-		const std::vector<std::vector<double>>&	get_bias(void) const { return _bias; }
-		const std::vector<double>&		get_bias(const size_t& index) const { if (index > _bias.size() - 1) throw Error("Error: index out of range"); else return _bias[index]; }
+		const std::vector<Vector<double>>&	get_bias(void) const { return _bias; }
+		const Vector<double>&			get_bias(const size_t& index) const { if (index > _bias.size() - 1) throw Error("Error: index out of range"); else return _bias[index]; }
 		const double&				get_bias(const size_t& i, const size_t& j) const;
 		const double&				get_learning_rate(void) const { return _learning_rate; }
 		const Vector<double>&			get_outputs(void) const { return _outputs; }
@@ -41,8 +42,8 @@ class	ARNetwork
 		void					set_inputs(const Vector<double>& inputs) { _inputs = inputs; }
 		void					set_weights(std::vector<Matrix<double>>& weights) { _weights = weights; }
 		void					set_weights(const size_t& index, const Matrix<double>& weights) { if (index > _weights.size() - 1) throw Error("Error: index out of range"); else _weights[index] = weights; }
-		void					set_bias(const std::vector<std::vector<double>>& bias) { _bias = bias; }
-		void					set_bias(const size_t& index, const std::vector<double>& bias) { if (index > _bias.size() - 1) throw Error("Error: index out of range"); else _bias[index] = bias; }
+		void					set_bias(const std::vector<Vector<double>>& bias) { _bias = bias; }
+		void					set_bias(const size_t& index, const Vector<double>& bias) { if (index > _bias.size() - 1) throw Error("Error: index out of range"); else _bias[index] = bias; }
 		void					set_bias(const size_t& i, const size_t& j, const double& bias);
 		void					set_learning_rate(const double& learning_rate) { _learning_rate = learning_rate; }
 

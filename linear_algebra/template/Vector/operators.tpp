@@ -132,8 +132,6 @@ template <typename T>
 template <typename U>
 Vector<T>&	Vector<T>::operator=(const Matrix<U>& matrix)
 {
-	if (empty())
-		throw Error("Error: vector is empty");
 	if (matrix.empty())
 		throw Error("Error: matrix is empty");
 	if (matrix.getNbrColumns() != 1)

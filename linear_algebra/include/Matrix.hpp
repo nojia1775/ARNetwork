@@ -89,6 +89,7 @@ class	Matrix
 		size_t				rank(void) const;
 		Matrix<T>			sumCols(void) const;
 		Matrix<T>			sumLines(void) const;
+		void				apply(T (*f)(const T&));
 };
 
 template <typename T>

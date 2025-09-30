@@ -121,6 +121,7 @@ Matrix<T>&	Matrix<T>::operator=(const Vector<U>& vector)
 				_matrix[i][j] = static_cast<float>(vector[i]);
 		}
 	}
+	return *this;
 }
 
 template <typename T>

@@ -184,3 +184,12 @@ Vector<T>	Vector<T>::normalised(void) const
 		result[i] = _vector[i] / norm();
 	return result;
 }
+
+template <typename T>
+void	Vector<T>::apply(T (*f)(const T&))
+{
+	if (f == NULL)
+		return;
+	for (auto& coef : _vector)
+		coef = f(coef);
+}
