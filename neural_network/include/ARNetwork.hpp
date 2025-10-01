@@ -49,9 +49,9 @@ class	ARNetwork
 		void					set_learning_rate(const double& learning_rate) { _learning_rate = learning_rate; }
 
 		std::vector<double>			feed_forward(const Vector<double>& inputs, double (*layer_activation)(const double&), double (*output_activation)(const double&));
-		void					back_propagation(Matrix<double>& dW, Matrix<double>& dZ, double (*loss)(const double&, const double&), double (*d_loss)(const double&, const double&), double (*d_layer_activation)(const double&), double (*d_output_activation)(const double&), const std::vector<double>& y);
-		std::vector<double>			train(const size_t& batch, double (*loss)(const double&, const double&), double (*d_loss)(const double&, const double&), double (*layer_activation)(const double&), double (*d_layer_activation)(const double&), double (*output_activation)(const double&), double (*d_output_activation)(const double&), const std::vector<std::vector<std::vector<double>>>& inputs, const std::vector<std::vector<std::vector<double>>>& outputs, const size_t& epochs);
-		void					update_weights_bias(const Matrix<double>& dW, const Matrix<double>& dZ, const size_t& layer, const size_t& batch);
+		void					back_propagation(std::vector<Matrix<double>>& dW, std::vector<Matrix<double>>& dZ, double (*loss)(const double&, const double&), double (*d_loss)(const double&, const double&), double (*d_layer_activation)(const double&), double (*d_output_activation)(const double&), const std::vector<double>& y);
+		std::vector<double>			train(double (*loss)(const double&, const double&), double (*d_loss)(const double&, const double&), double (*layer_activation)(const double&), double (*d_layer_activation)(const double&), double (*output_activation)(const double&), double (*d_output_activation)(const double&), const std::vector<std::vector<std::vector<double>>>& inputs, const std::vector<std::vector<std::vector<double>>>& outputs, const size_t& epochs);
+		void					update_weights_bias(const std::vector<Matrix<double>>& dW, const std::vector<Matrix<double>>& dZ, const size_t& layer, const size_t& batch);
 };
 
 inline std::mt19937&	global_urng(void)
