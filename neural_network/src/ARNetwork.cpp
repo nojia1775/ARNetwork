@@ -77,11 +77,17 @@ Vector<double>	ARNetwork::feed_forward(const Vector<double>& inputs, double (*la
 	return _outputs;
 }
 
-// double	ARNetwork::back_propagation(double (*loss)(const double&, const double&), double (*d_loss)(const double&, const double&), double (*d_layer_activation)(const double&), double (*d_output_activation)(const double&), const std::vector<double>& y)
-// {
-// 	if (loss == NULL)
-// 		throw Error("Error: loss function is missing");
-// 	if (d_loss == NULL)
-// 		throw Error("Error: derived loss function is missing");
-// 	Vector<double> dA;
-// }
+double	ARNetwork::back_propagation(double (*loss)(const double&, const double&), double (*d_loss)(const double&, const double&), double (*d_layer_activation)(const double&), double (*d_output_activation)(const double&), const std::vector<double>& y)
+{
+	if (loss == NULL)
+		throw Error("Error: loss function is missing");
+	if (d_loss == NULL)
+		throw Error("Error: derived loss function is missing");
+	Matrix<double> dA(nbr_outputs(), 1);
+	for (size_t i = 0 ; i < nbr_outputs() ; i++)
+		dA[i][0] = d_loss(_outputs[i], y[i]);
+	for (int l = nbr_hidden_layers() ; l >= 0 ; l--)
+	{
+		Matrix<double> dZ(dA * Matrix<double>(_z[l]).apply(d_output_activation));
+	}
+}
