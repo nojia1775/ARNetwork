@@ -12,6 +12,7 @@ class	ARNetwork
 		Vector<double>				_outputs;
 		std::vector<Matrix<double>>		_weights;
 		std::vector<Vector<double>>		_z;
+		std::vector<Vector<double>>		_a;
 		std::vector<Vector<double>>		_bias;
 		double					_learning_rate;
 
@@ -47,8 +48,10 @@ class	ARNetwork
 		void					set_bias(const size_t& i, const size_t& j, const double& bias);
 		void					set_learning_rate(const double& learning_rate) { _learning_rate = learning_rate; }
 
-		Vector<double>				feed_forward(const Vector<double>& inputs, double (*layer_activation)(const double&), double (*output_activation)(const double&));
-		double					back_propagation(double (*loss)(const double&, const double&), double (*d_loss)(const double&, const double&), double (*d_layer_activation)(const double&), double (*d_output_activation)(const double&), const std::vector<double>& y);
+		std::vector<double>			feed_forward(const Vector<double>& inputs, double (*layer_activation)(const double&), double (*output_activation)(const double&));
+		void					back_propagation(Matrix<double>& dW, Matrix<double>& dZ, double (*loss)(const double&, const double&), double (*d_loss)(const double&, const double&), double (*d_layer_activation)(const double&), double (*d_output_activation)(const double&), const std::vector<double>& y);
+		std::vector<double>			train(const size_t& batch, double (*loss)(const double&, const double&), double (*d_loss)(const double&, const double&), double (*layer_activation)(const double&), double (*d_layer_activation)(const double&), double (*output_activation)(const double&), double (*d_output_activation)(const double&), const std::vector<std::vector<std::vector<double>>>& inputs, const std::vector<std::vector<std::vector<double>>>& outputs, const size_t& epochs);
+		void					update_weights_bias(const Matrix<double>& dW, const Matrix<double>& dZ, const size_t& layer, const size_t& batch);
 };
 
 inline std::mt19937&	global_urng(void)
