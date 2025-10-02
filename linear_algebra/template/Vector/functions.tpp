@@ -23,6 +23,9 @@ T	dotProduct(const Vector<Ta>& a, const Vector<Tb>& b)
 {
 	if (a.empty() || b.empty())
 		throw Error("Error: vector is empty");
+	a.display();
+	b.display();
+	std::cout << std::endl;
 	if (a.dimension() != b.dimension())
 		throw Error("Error : vectors must have the same dimension");
 	if constexpr (std::is_same<Ta, Complex>::value || std::is_same<Tb, Complex>::value)

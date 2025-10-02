@@ -4,13 +4,21 @@ ARNetwork::ARNetwork(const size_t& inputs, const size_t& hidden_layers, const si
 {
 	for (size_t i = 0 ; i < hidden_layers + 1 ; i++)
 	{
-		_bias[i] = Vector<double>(hidden_neurals ? hidden_neurals : 1);
 		if (i == 0)
+		{
 			_weights[i] = Matrix<double>(hidden_neurals ? hidden_neurals : 1, inputs);
+			_bias[i] = Vector<double>(hidden_neurals ? hidden_neurals : 1);
+		}
 		else if (i == hidden_layers)
+		{
 			_weights[i] = Matrix<double>(outputs, hidden_neurals);
+			_bias[i] = Vector<double>(outputs);
+		}
 		else
+		{
 			_weights[i] = Matrix<double>(hidden_neurals, hidden_neurals);
+			_bias[i] = Vector<double>(hidden_neurals);
+		}
 		for (size_t j = 0 ; j < _weights[i].getNbrLines() ; j++)
 			_bias[i][j] = random_double(-1, 1);
 		for (size_t j = 0 ; j < _weights[i].getNbrLines() ; j++)
@@ -89,17 +97,12 @@ void	ARNetwork::back_propagation(std::vector<Matrix<double>>& dW, std::vector<Ma
 	if (d_loss == NULL)
 		throw Error("Error: derived loss function is missing");
 	Matrix<double> dA(nbr_outputs(), 1);
-	double loss_index = 0;
 	for (size_t i = 0 ; i < nbr_outputs() ; i++)
-	{
 		dA[i][0] = d_loss(_outputs[i], y[i]);
-		loss_index += dA[i][0];
-	}
-	loss_index /= dA.getNbrLines();
 	for (int l = nbr_hidden_layers() ; l >= 0 ; l--)
 	{
 		Matrix<double> tmp(_z[l]);
-		tmp.apply(d_output_activation);
+		tmp.apply(l == (int)nbr_hidden_layers() ? d_output_activation : d_layer_activation);
 		Matrix<double> z(dA * tmp);
 		Matrix<double> w(z * Matrix<double>(_a[l]).transpose());
 		dZ[l] = dZ[l] + z;
@@ -108,7 +111,7 @@ void	ARNetwork::back_propagation(std::vector<Matrix<double>>& dW, std::vector<Ma
 	}
 }
 
-void	ARNetwork::update_weights_bias(const std::vector<Matrix<double>>& dW, const std::vector<Matrix<double>>& dZ, const size_t& layer, const size_t& batch)
+void	ARNetwork::update_weights_bias(const std::vector<Matrix<double>>& dW, const std::vector<Matrix<double>>& dZ, const size_t& batch)
 {
 	for (size_t layer = 0 ; layer < nbr_hidden_layers() + 1 ; layer++)
 	{
@@ -123,8 +126,8 @@ static void	valid_lists(const std::vector<std::vector<std::vector<double>>>& inp
 		throw Error("Error: the number of batch of inputs and outputs must be the same");
 	for (size_t i = 0 ; i < inputs.size() ; i++)
 	{
-		if (inputs[i].size() != outputs.size())
-			throw Error("Error: batch " + i + std::string(" of inputs have different size"));
+		if (inputs[i].size() != outputs[i].size())
+			throw Error("Error: batch of inputs and outputs have different size");
 		for (size_t j = 0 ; j < inputs[i].size() ; j++)
 		{
 			if (inputs[i][j].size() != nbr_inputs)
@@ -162,8 +165,25 @@ std::vector<double>	ARNetwork::train(double (*loss)(const double&, const double&
 				back_propagation(dW, dZ, loss, d_loss, d_layer_activation, d_output_activation, prediction);
 			}
 			losses.push_back(loss_index / inputs[j].size());
-			update_weights_bias(dW, dZ, j, inputs[j].size());
+			update_weights_bias(dW, dZ, inputs[j].size());
 		}
 	}
 	return losses;
+}
+
+std::vector<std::vector<std::vector<double>>>	ARNetwork::batching(const std::vector<std::vector<double>>& list, const size_t& batch)
+{
+	if (batch == 0)
+		throw Error("Error: batch cannot be 0");
+	size_t groups = batch > list.size() ? 1 : (size_t)(list.size() / batch);
+	groups += list.size() % batch == 0 ? 0 : 1;
+	std::vector<std::vector<std::vector<double>>> result(groups);
+	size_t index = 0;
+	for (size_t i = 0 ; i < list.size() ; i++)
+	{
+		if (i != 0 && i % batch == 0)
+			index++;
+		result[index].push_back(list[i]);
+	}
+	return result;
 }

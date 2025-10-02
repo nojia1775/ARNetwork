@@ -138,6 +138,6 @@ Vector<T>&	Vector<T>::operator=(const Matrix<U>& matrix)
 		throw Error("Error : the number of column of the matrix must be 1");
 	_vector = std::vector<T>(matrix.getNbrLines());
 	for (size_t i = 0 ; i < matrix.getNbrLines() ; i++)
-		_vector[i] = matrix[0][i];
+		_vector[i] = matrix[i][0];
 	return *this;
 }

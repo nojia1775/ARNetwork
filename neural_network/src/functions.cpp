@@ -15,7 +15,7 @@ std::vector<double>	softMax(const std::vector<double>& input)
 	return output;
 }
 
-std::vector<double>	derivatedSoftMax(const std::vector<double>& inputs)
+std::vector<double>	derived_softMax(const std::vector<double>& inputs)
 {
 	std::vector<double> result(inputs.size());
 
@@ -37,7 +37,7 @@ double	crossEntropy(const std::vector<double>& yPred, const std::vector<double>&
 	return loss;
 }
 
-double	derivatedCrossEntropy(const std::vector<double>& yPred, const std::vector<double>& yTrue)
+double	derived_crossEntropy(const std::vector<double>& yPred, const std::vector<double>& yTrue)
 {
 	double loss = 0;
 	for (size_t i = 0 ; i < yPred.size() ; i++)
