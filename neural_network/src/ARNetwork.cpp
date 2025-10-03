@@ -97,24 +97,18 @@ void	ARNetwork::back_propagation(std::vector<Matrix<double>>& dW, std::vector<Ma
 		dA[i][0] = loss_functions.derived_foo(_outputs[i], y[i]);
 	for (int l = nbr_hidden_layers() ; l >= 0 ; l--)
 	{
-		Matrix<double> z(dA.transpose() * _z[l].apply(l == (int)nbr_hidden_layers() ? d_output_activation : d_layer_activation));
-		z.display();
-		Matrix<double>(_a[l]).transpose().display();
+		Matrix<double> z(dA.hadamard(_z[l].apply(l == (int)nbr_hidden_layers() ? d_output_activation : d_layer_activation)));
 		Matrix<double> w(z * Matrix<double>(_a[l]).transpose());
 		dZ[l] = dZ[l] + z;
 		dW[l] = dW[l] + w;
-		dA = w.transpose() * z;
+		dA = _weights[l].transpose() * z;
 	}
 }
 
 void	ARNetwork::update_weights_bias(const std::vector<Matrix<double>>& dW, const std::vector<Matrix<double>>& dZ, const size_t& batch)
 {
-	// for (const auto& m : dW)
-	// 	m.display();
 	for (size_t layer = 0 ; layer < nbr_hidden_layers() + 1 ; layer++)
 	{
-		// _weights[layer].display();
-		// Matrix<double>(dW[layer] * _learning_rate * (1 / batch)).display();
 		_weights[layer] = _weights[layer] - dW[layer] * _learning_rate * (1 / batch);
 		_bias[layer] = Matrix<double>(_bias[layer]) - dZ[layer] * _learning_rate * (1 / batch);
 	}

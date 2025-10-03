@@ -522,12 +522,27 @@ Matrix<T>	Matrix<T>::sumLines(void) const
 }
 
 template <typename T>
-Matrix<T>	Matrix<T>::apply(T (*f)(const T&))
+Matrix<T>	Matrix<T>::apply(T (*f)(const T&)) const
 {
 	if (f == NULL)
 		return *this;
+	Matrix<T> result(*this);
 	for (size_t i = 0 ; i < _nbrLines ; i++)
-		for (auto& coef : _matrix[i])
-			coef = f(coef);
-	return *this;
+		for (size_t j = 0 ; j < _nbrColumns ; j++)
+			result[i][j] = f(result[i][j]);
+	return result;
+}
+
+template <typename T>
+Matrix<T>	Matrix<T>::hadamard(const Matrix<T>& matrix) const
+{
+	if (_nbrColumns != matrix.getNbrColumns() || _nbrLines != matrix.getNbrLines())
+		throw Error("Error: matrices must be the same dimension");
+	Matrix<T> result(*this);
+	for (size_t i = 0 ; i < result.getNbrLines() ; i++)
+	{
+		for (size_t j = 0 ; j < result.getNbrColumns() ; j++)
+			result[i][j] *= matrix[i][j];
+	}
+	return result;
 }

@@ -62,7 +62,8 @@ class	Vector
 		bool			empty(void) const { return _vector.size() == 0; }
 		float			norm_1(void) const;
 		float			norm_inf(void) const;
-		Vector<T>		apply(T (*f)(const T&));
+		Vector<T>		apply(T (*f)(const T&)) const;
+		Vector<T>		hadamard(const Vector<T>& vector) const;
 };
 
 template <typename T, typename Ta, typename Tb>

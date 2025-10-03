@@ -140,7 +140,7 @@ const std::vector<T>&	Matrix<T>::operator[](const size_t& index) const
 	if (empty())
 		throw Error("Error: matrix is empty");
 	if (index > _nbrLines - 1)
-		throw Error("Error : index out of range");
+		throw Error("Error : index out of range 4");
 	return _matrix[index];
 }
 
@@ -204,8 +204,8 @@ Matrix<U>	Matrix<T>::operator*(const Vector<U>& vector) const
 		throw Error("Error: matrix is empty");
 	if (vector.empty())
 		throw Error("Error: vector is empty");
-	if (_nbrColumns != vector.dimension())
-		throw Error("Error : vector.dimension must be equal to matrice.column");
+	// if (_nbrColumns != vector.dimension())
+	// 	throw Error("Error : vector.dimension must be equal to matrice.column");
 	return Matrix<U>(*this * Matrix<U>(vector));
 }
 

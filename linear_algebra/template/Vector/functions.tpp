@@ -186,11 +186,23 @@ Vector<T>	Vector<T>::normalised(void) const
 }
 
 template <typename T>
-Vector<T>	Vector<T>::apply(T (*f)(const T&))
+Vector<T>	Vector<T>::apply(T (*f)(const T&)) const
 {
 	if (f == NULL)
 		return *this;
-	for (auto& coef : _vector)
-		coef = f(coef);
-	return *this;
+	Vector<T> result(*this);
+	for (size_t i = 0 ; i < result.dimension() ; i++)
+		result[i] = f(result[i]);
+	return result;
+}
+
+template <typename T>
+Vector<T>	Vector<T>::hadamard(const Vector<T>& vector) const
+{
+	if (dimension() != vector.dimension())
+		throw Error("Error: vectors must be the same dimension");
+	Vector<T> result(*this);
+	for (size_t i = 0 ; i < result.dimension() ; i++)
+		result[i] *= vector[i];
+	return result;
 }
