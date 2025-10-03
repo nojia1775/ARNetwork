@@ -90,20 +90,16 @@ std::vector<double>	ARNetwork::feed_forward(const Vector<double>& inputs, double
 	return _outputs.getStdVector();
 }
 
-void	ARNetwork::back_propagation(std::vector<Matrix<double>>& dW, std::vector<Matrix<double>>& dZ, double (*loss)(const double&, const double&), double (*d_loss)(const double&, const double&), double (*d_layer_activation)(const double&), double (*d_output_activation)(const double&), const std::vector<double>& y)
+void	ARNetwork::back_propagation(std::vector<Matrix<double>>& dW, std::vector<Matrix<double>>& dZ, const PairFunction& loss_functions, double (*d_layer_activation)(const double&), double (*d_output_activation)(const double&), const std::vector<double>& y)
 {
-	if (loss == NULL)
-		throw Error("Error: loss function is missing");
-	if (d_loss == NULL)
-		throw Error("Error: derived loss function is missing");
 	Matrix<double> dA(nbr_outputs(), 1);
 	for (size_t i = 0 ; i < nbr_outputs() ; i++)
-		dA[i][0] = d_loss(_outputs[i], y[i]);
+		dA[i][0] = loss_functions.derived_foo(_outputs[i], y[i]);
 	for (int l = nbr_hidden_layers() ; l >= 0 ; l--)
 	{
-		Matrix<double> tmp(_z[l]);
-		tmp.apply(l == (int)nbr_hidden_layers() ? d_output_activation : d_layer_activation);
-		Matrix<double> z(dA * tmp);
+		Matrix<double> z(dA.transpose() * _z[l].apply(l == (int)nbr_hidden_layers() ? d_output_activation : d_layer_activation));
+		z.display();
+		Matrix<double>(_a[l]).transpose().display();
 		Matrix<double> w(z * Matrix<double>(_a[l]).transpose());
 		dZ[l] = dZ[l] + z;
 		dW[l] = dW[l] + w;
@@ -113,8 +109,12 @@ void	ARNetwork::back_propagation(std::vector<Matrix<double>>& dW, std::vector<Ma
 
 void	ARNetwork::update_weights_bias(const std::vector<Matrix<double>>& dW, const std::vector<Matrix<double>>& dZ, const size_t& batch)
 {
+	// for (const auto& m : dW)
+	// 	m.display();
 	for (size_t layer = 0 ; layer < nbr_hidden_layers() + 1 ; layer++)
 	{
+		// _weights[layer].display();
+		// Matrix<double>(dW[layer] * _learning_rate * (1 / batch)).display();
 		_weights[layer] = _weights[layer] - dW[layer] * _learning_rate * (1 / batch);
 		_bias[layer] = Matrix<double>(_bias[layer]) - dZ[layer] * _learning_rate * (1 / batch);
 	}
@@ -138,12 +138,8 @@ static void	valid_lists(const std::vector<std::vector<std::vector<double>>>& inp
 	}
 }
 
-std::vector<double>	ARNetwork::train(double (*loss)(const double&, const double&), double (*d_loss)(const double&, const double&), double (*layer_activation)(const double&), double (*d_layer_activation)(const double&), double (*output_activation)(const double&), double (*d_output_activation)(const double&), const std::vector<std::vector<std::vector<double>>>& inputs, const std::vector<std::vector<std::vector<double>>>& outputs, const size_t& epochs)
+std::vector<double>	ARNetwork::train(const PairFunction& loss_functions, const PairFunction& layer_functions, const PairFunction& output_functions, const std::vector<std::vector<std::vector<double>>>& inputs, const std::vector<std::vector<std::vector<double>>>& outputs, const size_t& epochs)
 {
-	if (loss == NULL)
-		throw Error("Error: loss function is missing");
-	if (d_loss == NULL)
-		throw Error("Error: derived loss function is missing");
 	if (inputs.empty())
 		throw Error("Error: there is no input");
 	if (outputs.empty())
@@ -159,10 +155,10 @@ std::vector<double>	ARNetwork::train(double (*loss)(const double&, const double&
 		{
 			for (size_t k = 0 ; k < inputs[j].size() ; k++) // batch of examples
 			{
-				std::vector<double> prediction = feed_forward(inputs[j][k], layer_activation, output_activation);
+				std::vector<double> prediction = feed_forward(inputs[j][k], layer_functions.get_activation_function(), output_functions.get_activation_function());
 				for (size_t l = 0 ; l < prediction.size() ; l++)
-					loss_index += loss(prediction[l], outputs[j][k][l]);
-				back_propagation(dW, dZ, loss, d_loss, d_layer_activation, d_output_activation, prediction);
+					loss_index += loss_functions.foo(prediction[l], outputs[j][k][l]);
+				back_propagation(dW, dZ, loss_functions, layer_functions.get_derived_activation_function(), output_functions.get_derived_activation_function(), prediction);
 			}
 			losses.push_back(loss_index / inputs[j].size());
 			update_weights_bias(dW, dZ, inputs[j].size());

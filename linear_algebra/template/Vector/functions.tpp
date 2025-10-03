@@ -23,9 +23,6 @@ T	dotProduct(const Vector<Ta>& a, const Vector<Tb>& b)
 {
 	if (a.empty() || b.empty())
 		throw Error("Error: vector is empty");
-	a.display();
-	b.display();
-	std::cout << std::endl;
 	if (a.dimension() != b.dimension())
 		throw Error("Error : vectors must have the same dimension");
 	if constexpr (std::is_same<Ta, Complex>::value || std::is_same<Tb, Complex>::value)
@@ -189,10 +186,11 @@ Vector<T>	Vector<T>::normalised(void) const
 }
 
 template <typename T>
-void	Vector<T>::apply(T (*f)(const T&))
+Vector<T>	Vector<T>::apply(T (*f)(const T&))
 {
 	if (f == NULL)
-		return;
+		return *this;
 	for (auto& coef : _vector)
 		coef = f(coef);
+	return *this;
 }

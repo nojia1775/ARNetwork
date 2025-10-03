@@ -17,7 +17,7 @@ int	main(void)
 	try
 	{
 		ARNetwork arn(2, 1, 2, 1);
-		std::vector<double> losses = arn.train(MSE, derived_MSE, sigmoid, derived_sigmoid, sigmoid, derived_sigmoid, arn.batching(inputs, 1), arn.batching(outputs, 1), 100);
+		std::vector<double> losses = arn.train(PairFunction("MSE"), PairFunction("sigmoid"), PairFunction("sigmoid"), arn.batching(inputs, 1), arn.batching(outputs, 1), 100);
 		for (const auto& loss : losses)
 			std::cout << loss << std::endl;
 	}

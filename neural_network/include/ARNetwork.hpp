@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../linear_algebra/include/LinearAlgebra.hpp"
+#include "PairFunction.hpp"
 #include <random>
 #include <cmath>
 #include <algorithm>
@@ -51,8 +52,8 @@ class	ARNetwork
 		void					set_learning_rate(const double& learning_rate) { _learning_rate = learning_rate; }
 
 		std::vector<double>			feed_forward(const Vector<double>& inputs, double (*layer_activation)(const double&), double (*output_activation)(const double&));
-		void					back_propagation(std::vector<Matrix<double>>& dW, std::vector<Matrix<double>>& dZ, double (*loss)(const double&, const double&), double (*d_loss)(const double&, const double&), double (*d_layer_activation)(const double&), double (*d_output_activation)(const double&), const std::vector<double>& y);
-		std::vector<double>			train(double (*loss)(const double&, const double&), double (*d_loss)(const double&, const double&), double (*layer_activation)(const double&), double (*d_layer_activation)(const double&), double (*output_activation)(const double&), double (*d_output_activation)(const double&), const batch_type& inputs, const batch_type& outputs, const size_t& epochs);
+		void					back_propagation(std::vector<Matrix<double>>& dW, std::vector<Matrix<double>>& dZ, const PairFunction& loss_functions, double (*d_layer_activation)(const double&), double (*d_output_activation)(const double&), const std::vector<double>& y);
+		std::vector<double>			train(const PairFunction& loss_functions, const PairFunction& layer_functions, const PairFunction& output_functions, const batch_type& inputs, const batch_type& outputs, const size_t& epochs);
 		void					update_weights_bias(const std::vector<Matrix<double>>& dW, const std::vector<Matrix<double>>& dZ, const size_t& batch);
 		static batch_type			batching(const std::vector<std::vector<double>>& list, const size_t& batch);
 };
@@ -69,34 +70,3 @@ inline double	random_double(const double& min, const double& max)
 	std::uniform_real_distribution<double> dist(min, max);
 	return dist(global_urng());
 }
-
-// activation functions
-
-inline double	ReLU(const double& x) { return x <= 0 ? 0 : x; }
-inline double	derived_ReLU(const double& x) { return x <= 0 ? 0 : 1; }
-
-inline double	leakyReLU(const double& x) { return x <= 0 ? x * 0.01 : x; }
-inline double	derived_LeakyReLU(const double& x) { return x <= 0 ? 0.01 : 1; }
-
-inline double	sigmoid(const double& x) { return 1 / (1 + exp(-x)); }
-inline double	derived_sigmoid(const double& x) { return sigmoid(x) * (1 - sigmoid(x)); }
-
-inline double	identity(const double& x) { return x; }
-inline double	derived_identity(const double& x) { return x / std::abs(x); }
-
-inline double	tanH(const double& x) { return (exp(x) - exp(-x)) / (exp(x) + exp(-x)); }
-inline double	derived_tanH(const double& x) { return 1 - pow(tanH(x), 2); }
-
-std::vector<double>	softMax(const std::vector<double>& input);
-std::vector<double>	derived_softMax(const std::vector<double>& inputs);
-
-// loss functions
-
-inline double	BCE(const double& yPred, const double& yTrue) { return - yTrue * log(yPred) - (1 - yTrue) * log(1 - yPred); }
-inline double	derived_BCE(const double& yPred, const double& yTrue) { return - yTrue / (yPred + 1e-7) + (1 - yTrue) / (1 - yPred + 1e-7); }
-
-inline double	MSE(const double& yPred, const double& yTrue) { return pow(yPred - yTrue, 2) / 2; }
-inline double	derived_MSE(const double& yPred, const double& yTrue) { return yPred - yTrue; }
-
-double	crossEntropy(const std::vector<double>& yPred, const std::vector<double>& yTrue);
-double	derived_crossEntropy(const std::vector<double>& yPred, const std::vector<double>& yTrue);

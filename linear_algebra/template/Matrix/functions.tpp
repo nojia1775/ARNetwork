@@ -522,11 +522,12 @@ Matrix<T>	Matrix<T>::sumLines(void) const
 }
 
 template <typename T>
-void	Matrix<T>::apply(T (*f)(const T&))
+Matrix<T>	Matrix<T>::apply(T (*f)(const T&))
 {
 	if (f == NULL)
-		return;
+		return *this;
 	for (size_t i = 0 ; i < _nbrLines ; i++)
 		for (auto& coef : _matrix[i])
 			coef = f(coef);
+	return *this;
 }

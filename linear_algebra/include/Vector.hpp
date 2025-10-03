@@ -62,7 +62,7 @@ class	Vector
 		bool			empty(void) const { return _vector.size() == 0; }
 		float			norm_1(void) const;
 		float			norm_inf(void) const;
-		void			apply(T (*f)(const T&));
+		Vector<T>		apply(T (*f)(const T&));
 };
 
 template <typename T, typename Ta, typename Tb>
