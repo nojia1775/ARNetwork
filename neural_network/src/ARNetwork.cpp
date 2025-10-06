@@ -223,3 +223,17 @@ std::vector<std::vector<std::vector<double>>>	ARNetwork::batching(const std::vec
 	}
 	return result;
 }
+
+void	ARNetwork::randomize_weights(const double& min, const double& max)
+{
+	for (size_t i = 0 ; i < nbr_hidden_layers() + 1 ; i++)
+	{
+		for (size_t j = 0 ; j < _weights[i].getNbrLines() ; j++)
+			_bias[i][j] = random_double(min, max);
+		for (size_t j = 0 ; j < _weights[i].getNbrLines() ; j++)
+		{
+			for (size_t k = 0 ; k < _weights[i].getNbrColumns() ; k++)
+				_weights[i][j][k] = random_double(min, max);
+		}
+	}
+}

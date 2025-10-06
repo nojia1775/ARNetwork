@@ -14,6 +14,9 @@ inline double	derived_ReLU(const double& x) { return x <= 0 ? 0 : 1; }
 inline double	leakyReLU(const double& x) { return x <= 0 ? x * 0.01 : x; }
 inline double	derived_leakyReLU(const double& x) { return x <= 0 ? 0.01 : 1; }
 
+inline double	tanh(const double& x) { return std::tanh(x); }
+inline double	derived_tanh(const double& x) { return 1 - std::tanh(x) * std::tanh(x); }
+
 inline double	sigmoid(const double& x) { return 1 / (1 + exp(-x)); }
 inline double	derived_sigmoid(const double& x) { return sigmoid(x) * (1 - sigmoid(x)); }
 

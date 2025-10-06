@@ -56,6 +56,7 @@ class	ARNetwork
 		std::vector<double>			train(const PairFunction& loss_functions, const PairFunction& layer_functions, const PairFunction& output_functions, const batch_type& inputs, const batch_type& outputs, const size_t& epochs);
 		void					update_weights_bias(const std::vector<Matrix<double>>& dW, const std::vector<Matrix<double>>& dZ, const size_t& batch);
 		static batch_type			batching(const std::vector<std::vector<double>>& list, const size_t& batch);
+		void					randomize_weights(const double& min, const double& max);
 };
 
 inline std::mt19937&	global_urng(void)

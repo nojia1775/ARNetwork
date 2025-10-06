@@ -33,6 +33,11 @@ PairFunction::PairFunction(const std::string& function) : _act(nullptr), _dact(n
 		_loss = MSE;
 		_dloss = derived_MSE;
 	}
+	else if (function == "tanh")
+	{
+		_act = tanh;
+		_dact = derived_tanh;
+	}
 	else
 		throw Error("Error: unknown function");
 }
