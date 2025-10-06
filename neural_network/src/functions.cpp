@@ -44,3 +44,69 @@ double	derived_crossEntropy(const std::vector<double>& yPred, const std::vector<
 		loss += yTrue[i] * std::log(yPred[i] + std::numeric_limits<double>::epsilon());
 	return -loss;
 }
+
+double	MSE(const Vector<double>& y_pred, const Vector<double>& y)
+{
+	if (y_pred.empty() || y.empty())
+		throw Error("Error: vector is empty");
+	if (y_pred.dimension() != y.dimension())
+		throw Error("Error: vectors must have the same dimension");
+	double sum = 0;
+	for (size_t i = 0 ; i < y_pred.dimension() ; i++)
+		sum += pow(y_pred[i] - y[i], 2);
+	return sum / static_cast<double>(y_pred.dimension());
+}
+
+Vector<double>	derived_MSE(const Vector<double>& y_pred, const Vector<double>& y)
+{
+	if (y_pred.empty() || y.empty())
+		throw Error("Error: vector is empty");
+	if (y_pred.dimension() != y.dimension())
+		throw Error("Error: vectors must have the same dimension");
+	Vector<double> gradients(y_pred.dimension());
+	for (size_t i = 0 ; i < gradients.dimension() ; i++)
+		gradients[i] = 2 * (y_pred[i] - y[i]) / y_pred.dimension();
+	return gradients;
+}
+
+double	BCE(const Vector<double>& y_pred, const Vector<double>& y)
+{
+	if (y_pred.empty() || y.empty())
+		throw Error("Error: vector is empty");
+	if (y_pred.dimension() != y.dimension())
+		throw Error("Error: vectors must have the same dimension");
+	double sum = 0;
+	for (size_t i = 0 ; i < y.dimension() ; i++)
+	{
+		double y_hat;
+		if (y_pred[i] < std::numeric_limits<double>::epsilon())
+			y_hat = std::numeric_limits<double>::epsilon();
+		else if (y_pred[i] > 1 - std::numeric_limits<double>::epsilon())
+			y_hat = 1 - std::numeric_limits<double>::epsilon();
+		else 
+			y_hat = y_pred[i];
+		sum += y[i] * std::log(y_hat) + (1 - y[i]) * std::log(1 - y_hat);
+	}
+	return -sum / static_cast<double>(y_pred.dimension());
+}
+
+Vector<double>	derived_BCE(const Vector<double>& y_pred, const Vector<double>& y)
+{
+	if (y_pred.empty() || y.empty())
+		throw Error("Error: vector is empty");
+	if (y_pred.dimension() != y.dimension())
+		throw Error("Error: vectors must have the same dimension");
+	Vector<double> gradients(y_pred.dimension());
+	for (size_t i = 0 ; i < y_pred.dimension() ; i++)
+	{
+		double y_hat;
+		if (y_pred[i] < std::numeric_limits<double>::epsilon())
+			y_hat = std::numeric_limits<double>::epsilon();
+		else if (y_pred[i] > 1 - std::numeric_limits<double>::epsilon())
+			y_hat = 1 - std::numeric_limits<double>::epsilon();
+		else 
+			y_hat = y_pred[i];
+		gradients[i] = (y_hat - y[i]) / (y_hat * (1.0 - y_hat) * y_pred.dimension());
+	}
+	return gradients;
+}

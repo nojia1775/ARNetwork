@@ -16,19 +16,19 @@ int	main(void)
 	});
 	try
 	{
-		ARNetwork arn(2, 1, 1, 1);
-		std::vector<double> losses = arn.train(PairFunction("MSE"), PairFunction("sigmoid"), PairFunction("sigmoid"), arn.batching(inputs, 1), arn.batching(outputs, 1), 100);
+		ARNetwork arn(2, 1, 2, 1);
+		std::vector<double> losses = arn.train(PairFunction("MSE"), PairFunction("sigmoid"), PairFunction("sigmoid"), arn.batching(inputs, 1), arn.batching(outputs, 1), 1);
 		// for (const auto& loss : losses)
 		// 	std::cout << loss << std::endl;
-		std::vector<double> result;
-		result = arn.feed_forward(inputs[0], sigmoid, sigmoid);
-		std::cout << result[0] << std::endl;
-		result = arn.feed_forward(inputs[1], sigmoid, sigmoid);
-		std::cout << result[0] << std::endl;
-		result = arn.feed_forward(inputs[2], sigmoid, sigmoid);
-		std::cout << result[0] << std::endl;
-		result = arn.feed_forward(inputs[3], sigmoid, sigmoid);
-		std::cout << result[0] << std::endl;
+		// std::vector<double> result;
+		// result = arn.feed_forward(inputs[0], sigmoid, sigmoid);
+		// std::cout << result[0] << std::endl;
+		// result = arn.feed_forward(inputs[1], sigmoid, sigmoid);
+		// std::cout << result[0] << std::endl;
+		// result = arn.feed_forward(inputs[2], sigmoid, sigmoid);
+		// std::cout << result[0] << std::endl;
+		// result = arn.feed_forward(inputs[3], sigmoid, sigmoid);
+		// std::cout << result[0] << std::endl;
 	}
 	catch (const std::exception& e) { std::cerr << e.what() << std::endl; }
 	return 0;

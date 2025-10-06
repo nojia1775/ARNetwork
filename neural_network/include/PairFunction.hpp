@@ -4,7 +4,7 @@
 #include <map>
 #include <vector>
 #include <cmath>
-#include "../../linear_algebra/include/Error.hpp"
+#include "../../linear_algebra/include/LinearAlgebra.hpp"
 
 // activation functions
 
@@ -28,11 +28,11 @@ std::vector<double>	derived_softMax(const std::vector<double>& inputs);
 
 // loss functions
 
-inline double	BCE(const double& yPred, const double& yTrue) { return - yTrue * log(yPred) - (1 - yTrue) * log(1 - yPred); }
-inline double	derived_BCE(const double& yPred, const double& yTrue) { return - yTrue / (yPred + 1e-7) + (1 - yTrue) / (1 - yPred + 1e-7); }
+double	BCE(const Vector<double>& y_pred, const Vector<double>& y);
+Vector<double>	derived_BCE(const Vector<double>& y_pred, const Vector<double>& y);
 
-inline double	MSE(const double& yPred, const double& yTrue) { return pow(yPred - yTrue, 2) / 2; }
-inline double	derived_MSE(const double& yPred, const double& yTrue) { return yPred - yTrue; }
+double	MSE(const Vector<double>& y_pred, const Vector<double>& y);
+Vector<double>	derived_MSE(const Vector<double>& y_pred, const Vector<double>& y);
 
 double	crossEntropy(const std::vector<double>& yPred, const std::vector<double>& yTrue);
 double	derived_crossEntropy(const std::vector<double>& yPred, const std::vector<double>& yTrue);
@@ -40,28 +40,29 @@ double	derived_crossEntropy(const std::vector<double>& yPred, const std::vector<
 class	PairFunction
 {
 	typedef double (*activation_function)(const double&);
-	typedef double (*loss_function)(const double&, const double&);
+	typedef double (*loss_function)(const Vector<double>&, const Vector<double>&);
+	typedef Vector<double> (*derived_loss_function)(const Vector<double>&, const Vector<double>&);
 
 	private:
 		double			(*_act)(const double&);
 		double			(*_dact)(const double&);
-		double			(*_loss)(const double&, const double&);
-		double			(*_dloss)(const double&, const double&);
+		double			(*_loss)(const Vector<double>&, const Vector<double>&);
+		Vector<double>		(*_dloss)(const Vector<double>&, const Vector<double>&);
 
 	public:
 					PairFunction(const std::string& function);
 					~PairFunction(void) {}
 
 					PairFunction(double (*f)(const double&), double (*df)(const double&)) : _act(f), _dact(df), _loss(nullptr), _dloss(nullptr) {}
-					PairFunction(double (*loss)(const double&, const double&), double (*dloss)(const double&, const double&)) : _act(nullptr), _dact(nullptr), _loss(loss), _dloss(dloss) {}
+					PairFunction(double (*loss)(const Vector<double>&, const Vector<double>&), Vector<double> (*dloss)(const Vector<double>&, const Vector<double>&)) : _act(nullptr), _dact(nullptr), _loss(loss), _dloss(dloss) {}
 
 		activation_function	get_activation_function(void) const { return _act; }
 		activation_function	get_derived_activation_function(void) const { return _dact; }
 		loss_function		get_loss_function(void) const { return _loss; }
-		loss_function		get_derived_loss_function(void) const { return _dloss; }
+		derived_loss_function	get_derived_loss_function(void) const { return _dloss; }
 
 		double			foo(const double& x) const { if (!_act) throw Error("Error: there is no activation function"); return _act(x); }
-		double			foo(const double& a, const double& b) const { if (!_loss) throw Error("Error: there is no loss function"); return _loss(a, b); }
+		double			foo(const Vector<double>& a, const Vector<double>& b) const { if (!_loss) throw Error("Error: there is no loss function"); return _loss(a, b); }
 		double			derived_foo(const double& x) const { if (!_dact) throw Error("Error: there is no derived activation function"); return _dact(x); }
-		double			derived_foo(const double& a, const double& b) const { if (!_dloss) throw Error("Error: there is no derived loss function"); return _dloss(a, b); }
+		Vector<double>		derived_foo(const Vector<double>& a, const Vector<double>& b) const { if (!_dloss) throw Error("Error: there is no derived loss function"); return _dloss(a, b); }
 };
