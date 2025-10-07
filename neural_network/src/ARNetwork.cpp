@@ -97,11 +97,7 @@ void	ARNetwork::back_propagation(std::vector<Matrix<double>>& dW, std::vector<Ma
 	Matrix<double> dA(loss_functions.derived_foo(_outputs, y));
 	for (int l = nbr_hidden_layers() ; l >= 0 ; l--)
 	{
-		Matrix<double> z;
-		if (l == (int)nbr_hidden_layers() && loss_functions.get_loss_function() == BCE && d_output_activation == derived_sigmoid)
-			z = _outputs - y;
-		else
-			z = dA.hadamard(_z[l].apply(l == (int)nbr_hidden_layers() ? d_output_activation : d_layer_activation));
+		Matrix<double> z = dA.hadamard(_z[l].apply(l == (int)nbr_hidden_layers() ? d_output_activation : d_layer_activation));
 		Matrix<double> w = z * Matrix<double>(_a[l]).transpose();
 		dZ[l] = dZ[l] + z;
 		dW[l] = dW[l] + w;
