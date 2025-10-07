@@ -99,8 +99,6 @@ template <typename T>
 template <typename U>
 Matrix<T>&	Matrix<T>::operator=(const Vector<U>& vector)
 {
-	if (empty())
-		throw Error("Error: matrix is empty");
 	if (vector.empty())
 		throw Error("Error: vector is empty");
 	_nbrLines = vector.dimension();

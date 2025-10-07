@@ -121,7 +121,11 @@ void	ARNetwork::back_propagation(std::vector<Matrix<double>>& dW, std::vector<Ma
 		// std::cout << "dA " << l << std::endl;
 		// dA.display();
 		// std::cout << std::endl;
-		Matrix<double> z = dA.hadamard(_z[l].apply(l == (int)nbr_hidden_layers() ? d_output_activation : d_layer_activation));
+		Matrix<double> z;
+		if (l == (int)nbr_hidden_layers() && loss_functions.get_loss_function() == BCE && d_output_activation == derived_sigmoid)
+			z = _outputs - y;
+		else
+			z = dA.hadamard(_z[l].apply(l == (int)nbr_hidden_layers() ? d_output_activation : d_layer_activation));
 		// std::cout << "A transpose " << l << std::endl;
 		// Matrix<double>(_a[l]).transpose().display();
 		// std::cout << std::endl;
@@ -229,11 +233,40 @@ void	ARNetwork::randomize_weights(const double& min, const double& max)
 	for (size_t i = 0 ; i < nbr_hidden_layers() + 1 ; i++)
 	{
 		for (size_t j = 0 ; j < _weights[i].getNbrLines() ; j++)
-			_bias[i][j] = random_double(min, max);
-		for (size_t j = 0 ; j < _weights[i].getNbrLines() ; j++)
 		{
 			for (size_t k = 0 ; k < _weights[i].getNbrColumns() ; k++)
 				_weights[i][j][k] = random_double(min, max);
 		}
 	}
+}
+
+void	ARNetwork::randomize_weights(const size_t& layer, const double& min, const double& max)
+{
+	if (layer > nbr_hidden_layers())
+		throw Error("Error: index out of range");
+	for (size_t i = 0 ; i < _weights[layer].getNbrLines() ; i++)
+	{
+		for (size_t j = 0 ; j < _weights[layer].getNbrColumns() ; j++)
+			_weights[layer][i][j] = random_double(min, max);
+	}
+}
+
+void	ARNetwork::randomize_bias(const double& min, const double& max)
+{
+	size_t i;
+	for (i = 0 ; i < nbr_hidden_layers() ; i++)
+	{
+		for (size_t j = 0 ; j < nbr_hidden_neurals(i) ; j++)
+			_bias[i][j] = random_double(min, max);
+	}
+	for (size_t j = 0 ; j < nbr_outputs() ; j++)
+		_bias[i][j] = random_double(min, max);
+}
+
+void	ARNetwork::randomize_bias(const size_t& layer, const double& min, const double& max)
+{
+	if (layer > nbr_hidden_layers())
+		throw Error("Error: index out of range");
+	for (size_t j = 0 ; j < nbr_hidden_neurals(layer) ; j++)
+		_bias[layer][j] = random_double(min, max);
 }

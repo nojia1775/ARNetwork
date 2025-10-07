@@ -39,7 +39,7 @@ class	ARNetwork
 
 		size_t					nbr_inputs(void) const { return _inputs.dimension(); }
 		size_t					nbr_hidden_layers(void) const { return _weights.size() - 1; }
-		size_t					nbr_hidden_neurals(void) const { return _weights.size() == 0 ? 0 : _weights[0].getNbrLines(); }
+		size_t					nbr_hidden_neurals(const size_t& layer) const { if (layer > nbr_hidden_layers() - 1) throw Error("Error: index out of range"); return _weights.size() == 0 ? 0 : _weights[0].getNbrLines(); }
 		size_t					nbr_bias(void) const { return _bias.size(); }
 		size_t					nbr_outputs(void) const { return _outputs.dimension(); }
 
@@ -56,7 +56,10 @@ class	ARNetwork
 		std::vector<double>			train(const PairFunction& loss_functions, const PairFunction& layer_functions, const PairFunction& output_functions, const batch_type& inputs, const batch_type& outputs, const size_t& epochs);
 		void					update_weights_bias(const std::vector<Matrix<double>>& dW, const std::vector<Matrix<double>>& dZ, const size_t& batch);
 		static batch_type			batching(const std::vector<std::vector<double>>& list, const size_t& batch);
+		void					randomize_weights(const size_t& layer, const double& min, const double& max);
 		void					randomize_weights(const double& min, const double& max);
+		void					randomize_bias(const size_t& layer, const double& min, const double& max);
+		void					randomize_bias(const double& min, const double& max);
 };
 
 inline std::mt19937&	global_urng(void)

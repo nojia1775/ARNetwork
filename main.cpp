@@ -16,9 +16,12 @@ int	main(void)
 	});
 	try
 	{
-		ARNetwork arn(2, 1, 2, 1);
-		arn.randomize_weights(-sqrt(2), sqrt(2));
-		std::vector<double> losses = arn.train(PairFunction("MSE"), PairFunction("tanh"), PairFunction("sigmoid"), arn.batching(inputs, 1), arn.batching(outputs, 1), 1000);
+		ARNetwork arn(2, 1, 3, 1);
+		arn.randomize_weights(0, -sqrt(6 / 4), sqrt(6 / 4));
+		arn.randomize_weights(1, -sqrt(2), sqrt(2));
+		arn.randomize_bias(-0.1, 0.1);
+		arn.set_learning_rate(0.02);
+		std::vector<double> losses = arn.train(PairFunction("BCE"), PairFunction("tanh"), PairFunction("sigmoid"), arn.batching(inputs, 1), arn.batching(outputs, 1), 10000);
 		// for (const auto& loss : losses)
 		// 	std::cout << loss << std::endl;
 		Vector<double> result;
