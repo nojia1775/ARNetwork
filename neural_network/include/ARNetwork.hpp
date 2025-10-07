@@ -20,7 +20,7 @@ class	ARNetwork
 		double					_learning_rate;
 
 	public:
-							ARNetwork(const size_t& inputs, const size_t& hidden_layers, const size_t& hidden_neurals, const size_t& outputs);
+							ARNetwork(const std::vector<size_t>& network);
 							~ARNetwork(void) {}
 
 							ARNetwork(const ARNetwork& arn);
@@ -39,7 +39,7 @@ class	ARNetwork
 
 		size_t					nbr_inputs(void) const { return _inputs.dimension(); }
 		size_t					nbr_hidden_layers(void) const { return _weights.size() - 1; }
-		size_t					nbr_hidden_neurals(const size_t& layer) const { if (layer > nbr_hidden_layers() - 1) throw Error("Error: index out of range"); return _weights.size() == 0 ? 0 : _weights[0].getNbrLines(); }
+		size_t					nbr_hidden_neurals(const size_t& layer) const { if (layer > nbr_hidden_layers() - 1) throw Error("Error: index out of range"); return _weights[layer].getNbrLines(); }
 		size_t					nbr_bias(void) const { return _bias.size(); }
 		size_t					nbr_outputs(void) const { return _outputs.dimension(); }
 

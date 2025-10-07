@@ -16,7 +16,7 @@ int	main(void)
 	});
 	try
 	{
-		ARNetwork arn(2, 1, 3, 1);
+		ARNetwork arn({2, 3, 1});
 		arn.randomize_weights(0, -sqrt(6 / 4), sqrt(6 / 4));
 		arn.randomize_weights(1, -sqrt(2), sqrt(2));
 		arn.randomize_bias(-0.1, 0.1);

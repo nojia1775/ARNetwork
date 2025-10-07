@@ -138,7 +138,7 @@ const std::vector<T>&	Matrix<T>::operator[](const size_t& index) const
 	if (empty())
 		throw Error("Error: matrix is empty");
 	if (index > _nbrLines - 1)
-		throw Error("Error : index out of range 4");
+		throw Error("Error : index out of range");
 	return _matrix[index];
 }
 

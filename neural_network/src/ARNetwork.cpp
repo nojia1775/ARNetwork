@@ -1,24 +1,26 @@
 #include "../include/ARNetwork.hpp"
 
-ARNetwork::ARNetwork(const size_t& inputs, const size_t& hidden_layers, const size_t& hidden_neurals, const size_t& outputs) : _inputs(inputs), _outputs(outputs), _weights(hidden_layers + 1), _z(hidden_layers + 1), _a(hidden_layers + 1), _bias(hidden_layers + 1), _learning_rate(0.1)
+ARNetwork::ARNetwork(const std::vector<size_t>& network)
 {
+	if (network.size() < 2)
+		throw Error("Error: not enough neurals in the network");
+	for (const auto& neurals : network)
+		if (neurals == 0)
+			throw Error("Error: number of neurals can't be 0");
+	size_t inputs = network[0];
+	size_t outputs = network[network.size() - 1];
+	size_t hidden_layers = network.size() - 2;
+	_weights = std::vector<Matrix<double>>(hidden_layers + 1);
+	_bias = std::vector<Vector<double>>(hidden_layers + 1);
+	_inputs = Vector<double>(inputs);
+	_outputs = Vector<double>(outputs);
+	_z = std::vector<Vector<double>>(hidden_layers + 1);
+	_a = std::vector<Vector<double>>(hidden_layers + 1);
+	_learning_rate = 0.1;
 	for (size_t i = 0 ; i < hidden_layers + 1 ; i++)
 	{
-		if (i == 0)
-		{
-			_weights[i] = Matrix<double>(hidden_neurals ? hidden_neurals : 1, inputs);
-			_bias[i] = Vector<double>(hidden_neurals ? hidden_neurals : 1);
-		}
-		else if (i == hidden_layers)
-		{
-			_weights[i] = Matrix<double>(outputs, hidden_neurals);
-			_bias[i] = Vector<double>(outputs);
-		}
-		else
-		{
-			_weights[i] = Matrix<double>(hidden_neurals, hidden_neurals);
-			_bias[i] = Vector<double>(hidden_neurals);
-		}
+		_weights[i] = Matrix<double>(network[i + 1], network[i]);
+		_bias[i] = Vector<double>(network[i + 1]);
 		for (size_t j = 0 ; j < _weights[i].getNbrLines() ; j++)
 			_bias[i][j] = random_double(-1, 1);
 		for (size_t j = 0 ; j < _weights[i].getNbrLines() ; j++)
