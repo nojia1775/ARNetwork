@@ -1,10 +1,12 @@
 #pragma once
 
 #include "../../linear_algebra/include/LinearAlgebra.hpp"
+#include "Json.hpp"
 #include "PairFunction.hpp"
 #include <random>
 #include <cmath>
 #include <algorithm>
+#include <fstream>
 
 class	ARNetwork
 {
@@ -18,9 +20,13 @@ class	ARNetwork
 		std::vector<Vector<double>>		_a;
 		std::vector<Vector<double>>		_bias;
 		double					_learning_rate;
+		std::string				_hidden_activation;
+		std::string				_output_activation;
+		std::string				_loss;
 
 	public:
 							ARNetwork(const std::vector<size_t>& network);
+							ARNetwork(const std::string& file_name);
 							~ARNetwork(void) {}
 
 							ARNetwork(const ARNetwork& arn);
@@ -36,6 +42,7 @@ class	ARNetwork
 		const double&				get_learning_rate(void) const { return _learning_rate; }
 		const Vector<double>&			get_outputs(void) const { return _outputs; }
 		const double&				get_output(const size_t& index) { if (index > _outputs.dimension() - 1) throw Error("Error: index out of range"); else return _outputs[index]; }
+		void					get_json(const std::string& file_name) const;
 
 		size_t					nbr_inputs(void) const { return _inputs.dimension(); }
 		size_t					nbr_hidden_layers(void) const { return _weights.size() - 1; }

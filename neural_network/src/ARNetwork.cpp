@@ -44,6 +44,9 @@ ARNetwork	ARNetwork::operator=(const ARNetwork& arn)
 		_a = arn._a;
 		_bias = arn._bias;
 		_learning_rate = arn._learning_rate;
+		_hidden_activation = arn._hidden_activation;
+		_output_activation = arn._output_activation;
+		_loss = arn._loss;
 	}
 	return *this;
 }
@@ -138,6 +141,9 @@ std::vector<double>	ARNetwork::train(const PairFunction& loss_functions, const P
 		throw Error("Error: there is no input");
 	if (outputs.empty())
 		throw Error("Error: there is no expected output");
+	_loss = loss_functions.get_loss_name();
+	_hidden_activation = layer_functions.get_activation_name();
+	_output_activation = output_functions.get_activation_name();
 	valid_lists(inputs, outputs, nbr_inputs(), nbr_outputs());
 	std::vector<double> losses;
 	for (size_t i = 0 ; i < epochs ; i++)
