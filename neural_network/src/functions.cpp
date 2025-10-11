@@ -54,7 +54,7 @@ double	MSE(const Vector<double>& y_pred, const Vector<double>& y)
 	double sum = 0;
 	for (size_t i = 0 ; i < y_pred.dimension() ; i++)
 		sum += pow(y_pred[i] - y[i], 2);
-	return sum / static_cast<double>(y_pred.dimension());
+	return sum / (2.0 * static_cast<double>(y_pred.dimension()));
 }
 
 Vector<double>	derived_MSE(const Vector<double>& y_pred, const Vector<double>& y)
@@ -65,7 +65,7 @@ Vector<double>	derived_MSE(const Vector<double>& y_pred, const Vector<double>& y
 		throw Error("Error: vectors must have the same dimension");
 	Vector<double> gradients(y_pred.dimension());
 	for (size_t i = 0 ; i < gradients.dimension() ; i++)
-		gradients[i] = 2 * (y_pred[i] - y[i]) / y_pred.dimension();
+		gradients[i] = (y_pred[i] - y[i]) / y_pred.dimension();
 	return gradients;
 }
 

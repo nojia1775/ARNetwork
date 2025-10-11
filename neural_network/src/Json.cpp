@@ -26,7 +26,7 @@ void	ARNetwork::get_json(const std::string& file_name) const
 		file.close();
 	}
 	else
-		std::cout << "Error\n";
+		std::cerr << "Error: could't save log\n";
 }
 
 ARNetwork::ARNetwork(const std::string& file_name)
@@ -58,10 +58,7 @@ ARNetwork::ARNetwork(const std::string& file_name)
 		{
 			_bias[layer][row] = data["bias"][layer][row];
 			for (size_t col = 0 ; col < data["weights"][layer][row].size() ; col++)
-			{
-				std::cout << layer << " " << row << " " << col << std::endl;
 				_weights[layer][row][col] = data["weights"][layer][row][col];
-			}
 		}
 	}
 }

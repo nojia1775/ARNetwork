@@ -174,7 +174,7 @@ template <typename T>
 Matrix<T>	Matrix<T>::operator*(const float& number) const
 {
 	if (empty())
-		throw Error("Error: matrix is empty");
+		throw Error("Error: matrix is empty 9");
 	Matrix result(_nbrLines, _nbrColumns);
 	for (size_t i = 0 ; i < _nbrLines ; i++)
 	{

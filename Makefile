@@ -22,7 +22,7 @@ $(NAME): $(OBJS)
 	ar -rsc $(NAME) $(OBJS)
 
 $(OBJS_DIR)%.o: %.cpp
-	@mkdir -p $(dir $@)
+	mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@ -I./include
 
 clean:

@@ -21,7 +21,7 @@ inline double	sigmoid(const double& x) { return 1 / (1 + exp(-x)); }
 inline double	derived_sigmoid(const double& x) { return sigmoid(x) * (1 - sigmoid(x)); }
 
 inline double	identity(const double& x) { return x; }
-inline double	derived_identity(const double& x) { return x / std::abs(x); }
+inline double	derived_identity(const double& x) { return x >= 0 ? 1 : -1; }
 
 inline double	tanH(const double& x) { return (exp(x) - exp(-x)) / (exp(x) + exp(-x)); }
 inline double	derived_tanH(const double& x) { return 1 - pow(tanH(x), 2); }
