@@ -69,8 +69,10 @@ void	ARNetwork::set_bias(const size_t& i, const size_t& j, const double& bias)
 	_bias[i][j] = bias;
 }
 
-Vector<double>	ARNetwork::feed_forward(const Vector<double>& inputs, double (*layer_activation)(const double&), double (*output_activation)(const double&))
+Vector<double>	ARNetwork::feed_forward(const Vector<double>& inputs, const std::string& layer_functions, const std::string& output_functions)
 {
+	auto output_activation = ActivationFactory::create(output_functions);
+	auto layer_activation = ActivationFactory::create(layer_functions);
 	set_inputs(inputs);
 	Matrix<double> neurals = _inputs;
 	_a[0] = _inputs;
@@ -78,15 +80,22 @@ Vector<double>	ARNetwork::feed_forward(const Vector<double>& inputs, double (*la
 	{
 		_z[i] = _weights[i] * neurals + Matrix<double>(_bias[i]);
 		neurals = _z[i];
-		if (i == nbr_hidden_layers())
+		try
 		{
-			if (output_activation)
-				neurals = neurals.apply(output_activation);
+			if (i == nbr_hidden_layers())
+				neurals = output_activation->activate_vector(neurals);
+			else
+				neurals = layer_activation->activate_vector(neurals);
 		}
-		else
+		catch (...)
 		{
-			if (layer_activation)
-				neurals = neurals.apply(layer_activation);
+			for (size_t j = 0 ; j < neurals.getNbrLines() ; j++)
+			{
+				if (i == 0)
+					neurals[j][0] = output_activation->activate_scalar(neurals[j][0]);
+				else
+					neurals[j][0] = layer_activation->activate_scalar(neurals[j][0]);
+			}
 		}
 		if (i != nbr_hidden_layers())
 			_a[i + 1] = neurals;
@@ -95,20 +104,38 @@ Vector<double>	ARNetwork::feed_forward(const Vector<double>& inputs, double (*la
 	return _outputs;
 }
 
-void	ARNetwork::back_propagation(std::vector<Matrix<double>>& dW, std::vector<Matrix<double>>& dZ, const PairFunction& loss_functions, double (*d_layer_activation)(const double&), double (*d_output_activation)(const double&), const Vector<double>& y)
+void	ARNetwork::back_propagation(std::vector<Matrix<double>>& dW, std::vector<Matrix<double>>& dZ, const std::string& loss_functions, const std::string& layer_functions, const std::string& output_functions, const Vector<double>& y)
 {
-	Matrix<double> dA(loss_functions.derived_foo(_outputs, y));
-	// dA.display();
-	// double loss = dA.sumLines()[0][0] / dA.getNbrLines();
+	auto output_activation = ActivationFactory::create(output_functions);
+	auto layer_activation = ActivationFactory::create(layer_functions);
+	auto loss_activation = LossFactory::create(loss_functions);
+	Matrix<double> dA(loss_activation->derive(_outputs, y));
 	for (int l = nbr_hidden_layers() ; l >= 0 ; l--)
 	{
-		Matrix<double> z = dA.hadamard(_z[l].apply(l == (int)nbr_hidden_layers() ? d_output_activation : d_layer_activation));
+		Vector<double> tmp(_z[l].dimension());
+		try
+		{
+			if (l == (int)nbr_hidden_layers())
+				tmp = output_activation->derive_vector(tmp);
+			else
+				tmp = layer_activation->derive_vector(tmp);
+		}
+		catch (...)
+		{
+			for (size_t i = 0 ; i < tmp.dimension() ; i++)
+			{
+				if (l == (int)nbr_hidden_layers())
+					tmp[i] = output_activation->derive_scalar(tmp[i]);
+				else
+					tmp[i] = layer_activation->derive_scalar(tmp[i]);
+			}
+		}
+		Matrix<double> z = dA.hadamard(tmp);
 		Matrix<double> w = z * Matrix<double>(_a[l]).transpose();
 		dZ[l] = dZ[l] + z;
 		dW[l] = dW[l] + w;
 		dA = _weights[l].transpose() * z;
 	}
-	// return loss;
 }
 
 void	ARNetwork::update_weights_bias(const std::vector<Matrix<double>>& dW, const std::vector<Matrix<double>>& dZ, const size_t& batch)
@@ -138,35 +165,70 @@ static void	valid_lists(const std::vector<std::vector<std::vector<double>>>& inp
 	}
 }
 
-std::vector<double>	ARNetwork::train(const PairFunction& loss_functions, const PairFunction& layer_functions, const PairFunction& output_functions, const std::vector<std::vector<std::vector<double>>>& inputs, const std::vector<std::vector<std::vector<double>>>& outputs, const size_t& epochs)
+std::map<std::string, std::vector<double>>	ARNetwork::train(const std::string& loss_functions, const std::string& layer_functions, const std::string& output_functions, const std::vector<std::vector<std::vector<double>>>& inputs, const std::vector<std::vector<std::vector<double>>>& outputs, const size_t& epochs)
 {
 	if (inputs.empty())
 		throw Error("Error: there is no input");
 	if (outputs.empty())
 		throw Error("Error: there is no expected output");
-	_loss = loss_functions.get_loss_name();
-	_hidden_activation = layer_functions.get_activation_name();
-	_output_activation = output_functions.get_activation_name();
-	valid_lists(inputs, outputs, nbr_inputs(), nbr_outputs());
-	std::vector<double> losses;
-	for (size_t i = 0 ; i < epochs ; i++)
+	double count_outputs = 0;
+	double sum_outputs = 0;
+	for (const auto& batch : outputs)
 	{
-		double loss_index = 0;
-		for (size_t j = 0 ; j < inputs.size() ; j++)
+		for (const auto& sample : batch)
 		{
-			std::vector<Matrix<double>> dW(nbr_hidden_layers() + 1);
-			std::vector<Matrix<double>> dZ(nbr_hidden_layers() + 1);
-			for (size_t k = 0 ; k < inputs[j].size() ; k++)
+			for (const auto& coef : sample)
 			{
-				Vector<double> prediction = feed_forward(inputs[j][k], layer_functions.get_activation_function(), output_functions.get_activation_function());
-				loss_index += loss_functions.foo(prediction, outputs[j][k]);
-				back_propagation(dW, dZ, loss_functions, layer_functions.get_derived_activation_function(), output_functions.get_derived_activation_function(), outputs[j][k]);
+				sum_outputs += coef;
+				count_outputs++;
 			}
-			losses.push_back(loss_index / inputs[j].size());
-			update_weights_bias(dW, dZ, inputs[j].size());
 		}
 	}
-	return losses;
+	double mean_output = sum_outputs / count_outputs;
+	double sstot = 0;
+	for (const auto& batch : outputs)
+		for (const auto& sample : batch)
+			for (const auto& coef : sample)
+				sstot += pow(coef - mean_output, 2);
+	auto loss_activation = LossFactory::create(loss_functions);
+	_loss = loss_functions;
+	_hidden_activation = layer_functions;
+	_output_activation = output_functions;
+	valid_lists(inputs, outputs, nbr_inputs(), nbr_outputs());
+	std::map<std::string, std::vector<double>> track_training;
+	double ssres = 0;
+	try
+	{
+		for (size_t i = 0 ; i < epochs ; i++)
+		{
+			double loss_index = 0;
+			for (size_t j = 0 ; j < inputs.size() ; j++)
+			{
+				std::vector<Matrix<double>> dW(nbr_hidden_layers() + 1);
+				std::vector<Matrix<double>> dZ(nbr_hidden_layers() + 1);
+				for (size_t k = 0 ; k < inputs[j].size() ; k++)
+				{
+					Vector<double> prediction = feed_forward(inputs[j][k], layer_functions, output_functions);
+					loss_index += loss_activation->activate(prediction, outputs[j][k]);
+					for (size_t l = 0 ; l < prediction.dimension() ; l++)
+						ssres += pow(prediction[l] - outputs[j][k][l], 2);
+					back_propagation(dW, dZ, loss_functions, layer_functions, output_functions, outputs[j][k]);
+				}
+				track_training["loss"].push_back(loss_index / inputs[j].size());
+				update_weights_bias(dW, dZ, inputs[j].size());
+			}
+			double r2 = 1.0 - ssres / sstot;
+			track_training["r2"].push_back(r2);
+			ssres = 0;
+		}
+	}
+	catch (const std::exception& e)
+	{
+		file.close();
+		throw e;
+	}
+	file.close();
+	return track_training;
 }
 
 std::vector<std::vector<std::vector<double>>>	ARNetwork::batching(const std::vector<std::vector<double>>& list, const size_t& batch)
@@ -174,7 +236,8 @@ std::vector<std::vector<std::vector<double>>>	ARNetwork::batching(const std::vec
 	if (batch == 0)
 		throw Error("Error: batch cannot be 0");
 	size_t groups = batch > list.size() ? 1 : (size_t)(list.size() / batch);
-	groups += list.size() % batch == 0 ? 0 : 1;
+	if (batch < list.size())
+		groups += list.size() % batch == 0 ? 0 : 1;
 	std::vector<std::vector<std::vector<double>>> result(groups);
 	size_t index = 0;
 	for (size_t i = 0 ; i < list.size() ; i++)

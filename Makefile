@@ -4,8 +4,7 @@ CXXFLAGS = -std=c++2a -Wall -Wextra -Werror -g -MMD
 SRCS =	linear_algebra/src/Complex.cpp \
 		linear_algebra/src/DiffMatrix.cpp \
 		neural_network/src/ARNetwork.cpp \
-		neural_network/src/PairFunction.cpp \
-		neural_network/src/functions.cpp \
+		neural_network/src/Functions.cpp \
 		neural_network/src/Json.cpp
 
 OBJS_DIR = obj/

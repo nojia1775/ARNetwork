@@ -186,7 +186,8 @@ Vector<T>	Vector<T>::normalised(void) const
 }
 
 template <typename T>
-Vector<T>	Vector<T>::apply(T (*f)(const T&)) const
+template <typename F>
+Vector<T>	Vector<T>::apply(F f) const
 {
 	if (f == NULL)
 		return *this;
