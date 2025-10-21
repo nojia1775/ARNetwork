@@ -1,5 +1,10 @@
 #include "../include/ARNetwork.hpp"
 
+/**
+ * @brief Create a json file which contains the bias, weights, loss function, layer function and output function of the neural network
+ * 
+ * @param file_name name of the json file
+ */
 void	ARNetwork::get_json(const std::string& file_name) const
 {
 	nlohmann::json data;
