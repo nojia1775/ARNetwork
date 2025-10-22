@@ -1,5 +1,10 @@
 #include "../include/ARNetwork.hpp"
 
+/**
+ * @brief Create a json file which contains the bias, weights, loss function, layer function and output function of the neural network
+ * 
+ * @param file_name name of the json file
+ */
 void	ARNetwork::get_json(const std::string& file_name) const
 {
 	nlohmann::json data;
@@ -26,17 +31,14 @@ void	ARNetwork::get_json(const std::string& file_name) const
 		file.close();
 	}
 	else
-		std::cout << "Error\n";
+		std::cerr << "Error: could't save log\n";
 }
 
 ARNetwork::ARNetwork(const std::string& file_name)
 {
 	std::ifstream file(file_name);
 	if (!file.is_open())
-	{
-		std::cout << "Impossible to open " << file_name << "\n";
-		return;
-	}
+		throw Error("Error: couldn't open " + file_name);
 	nlohmann::json data;
 	try { file >> data; }
 	catch (const nlohmann::json::parse_error& e) { std::cout << e.what() << "\n"; }
@@ -58,10 +60,7 @@ ARNetwork::ARNetwork(const std::string& file_name)
 		{
 			_bias[layer][row] = data["bias"][layer][row];
 			for (size_t col = 0 ; col < data["weights"][layer][row].size() ; col++)
-			{
-				std::cout << layer << " " << row << " " << col << std::endl;
 				_weights[layer][row][col] = data["weights"][layer][row][col];
-			}
 		}
 	}
 }

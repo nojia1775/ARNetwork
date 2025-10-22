@@ -89,7 +89,8 @@ class	Matrix
 		size_t				rank(void) const;
 		Matrix<T>			sumCols(void) const;
 		Matrix<T>			sumLines(void) const;
-		Matrix<T>			apply(T (*f)(const T&)) const;
+						template <typename F>
+		Matrix<T>			apply(F f) const;
 		Matrix<T>			hadamard(const Matrix<T>& matrix) const;
 };
 

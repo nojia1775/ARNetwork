@@ -1,50 +1,37 @@
 CXX = g++
-
 CXXFLAGS = -std=c++2a -Wall -Wextra -Werror -g -MMD
 
-OBJS_DIR = obj
+SRCS =	linear_algebra/src/Complex.cpp \
+		linear_algebra/src/DiffMatrix.cpp \
+		neural_network/src/ARNetwork.cpp \
+		neural_network/src/Functions.cpp \
+		neural_network/src/Json.cpp
 
-SRCS_TRAIN = train.cpp
+OBJS_DIR = obj/
 
-SRCS = compute.cpp
+OBJS = $(SRCS:%.cpp=$(OBJS_DIR)%.o)
 
-OBJS_TRAIN = $(SRCS_TRAIN:%.cpp=$(OBJS_DIR)/%.o)
-
-OBJS = $(SRCS:%.cpp=$(OBJS_DIR)/%.o)
+NAME = arnetwork.a
 
 DEPS = $(OBJS:.o=.d)
 
-DEPS_TRAIN = $(OBJS_TRAIN:.o=.d)
-
-NAME = compute
-
-NAME_TRAIN = train
-
-all: train compute
+all: $(NAME)
 
 $(NAME): $(OBJS)
-	make -C ARNetwork
-	$(CXX) $(CXXFLAGS) $^ ARNetwork/arnetwork.a -o $@
+	ar -rsc $(NAME) $(OBJS)
 
-$(NAME_TRAIN): $(OBJS_TRAIN)
-	make -C ARNetwork
-	$(CXX) $(CXXFLAGS) $^ ARNetwork/arnetwork.a -o $@
-	
-$(OBJS_DIR)/%.o: %.cpp
+$(OBJS_DIR)%.o: %.cpp
 	mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@ -I./include
 
 clean:
-	make clean -C ARNetwork
-	rm -rf $(OBJS_DIR) $(DEPS) $(DEPS_TRAIN)
+	rm -fr $(OBJS_DIR)
 
 fclean: clean
-	make fclean -C ARNetwork
-	rm -f $(NAME) $(NAME_TRAIN)
+	rm -rf $(NAME)
 
 re: fclean all
 
 -include $(DEPS)
--include $(DEPS_TRAIN)
 
-.PHONY: all clean fclean re
+.PHONY: all re clean fclean

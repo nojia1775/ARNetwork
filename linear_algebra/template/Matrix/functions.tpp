@@ -522,7 +522,8 @@ Matrix<T>	Matrix<T>::sumLines(void) const
 }
 
 template <typename T>
-Matrix<T>	Matrix<T>::apply(T (*f)(const T&)) const
+template <typename F>
+Matrix<T>	Matrix<T>::apply(F f) const
 {
 	if (f == NULL)
 		return *this;
