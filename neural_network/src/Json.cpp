@@ -20,9 +20,9 @@ void	ARNetwork::get_json(const std::string& file_name) const
 	for (size_t i = 0 ; i < nbr_hidden_layers() + 1 ; i++)
 		data["bias"].push_back(_bias[i].getStdVector());
 	data["learning_rate"] = _learning_rate;
-	data["hidden_activation"] = _hidden_activation;
-	data["output_activation"] = _output_activation;
-	data["loss"] = _loss;
+	data["hidden_activation"] = _layer_function;
+	data["output_activation"] = _output_function;
+	data["loss"] = _loss_function;
 	std::ofstream file(file_name);
 	if (file.is_open())
 	{
@@ -34,7 +34,7 @@ void	ARNetwork::get_json(const std::string& file_name) const
 		std::cerr << "Error: could't save log\n";
 }
 
-ARNetwork::ARNetwork(const std::string& file_name)
+ARNetwork::ARNetwork(const std::string& file_name) : _loss_function("bce"), _layer_function("sigmoid"), _output_function("sigmoid")
 {
 	std::ifstream file(file_name);
 	if (!file.is_open())
